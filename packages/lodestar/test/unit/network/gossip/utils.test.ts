@@ -44,7 +44,7 @@ describe("gossip utils", function () {
     it("should deserialize gossip message", function () {
       const block = generateEmptyBlock();
       const data = deserializeGossipMessage<BeaconBlock>(
-        {data: serialize(config.types.BeaconBlock, block)},
+        {data: serialize(config.types.BeaconBlock, block), from: Buffer.alloc(0), seqno: Buffer.alloc(0), topicIDs: []},
         config.types.BeaconBlock
       );
       expect(equals(config.types.BeaconBlock, block, data)).to.be.true;
@@ -53,7 +53,7 @@ describe("gossip utils", function () {
     it("should fail to deserialize too large message", function () {
       const bytes = Buffer.alloc(GOSSIP_MAX_SIZE + 1);
       expect(() => deserializeGossipMessage<BeaconBlock>(
-        {data: bytes},
+        {data: bytes, from: Buffer.alloc(0), seqno: Buffer.alloc(0), topicIDs: []},
         config.types.BeaconBlock
       )).to.throw();
     });

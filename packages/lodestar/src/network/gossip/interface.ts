@@ -64,6 +64,12 @@ export interface IGossipMessageValidator {
   isValidIncomingAttesterSlashing(attesterSlashing: AttesterSlashing): Promise<boolean>;
 }
 
+export type LodestarGossipMessage = BeaconBlock | Attestation | AggregateAndProof | 
+VoluntaryExit | ProposerSlashing | AttesterSlashing;
+
 export interface IGossipMessage {
+  from: Buffer;
   data: Buffer;
+  seqno: Buffer;
+  topicIDs: string[];
 }
