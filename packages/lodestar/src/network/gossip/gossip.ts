@@ -12,7 +12,7 @@ import {ATTESTATION_SUBNET_COUNT} from "../../constants";
 import {ILogger, LogLevel} from "../../logger";
 import {getGossipTopic,} from "./utils";
 import {INetworkOptions} from "../options";
-import {GossipEventEmitter, IGossip, IGossipEvents, IGossipSub, IGossipModules, IGossipMessageValidator, 
+import {GossipEventEmitter, IGossip, IGossipEvents, IGossipSub, IGossipModules, 
   LodestarGossipMessage} from "./interface";
 import {GossipEvent} from "./constants";
 import {publishBlock, handleIncomingBlock} from "./handlers/block";
