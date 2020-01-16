@@ -8,7 +8,6 @@ import {Attestation} from "@chainsafe/eth2.0-types";
 import {toHex} from "@chainsafe/eth2.0-utils";
 import {GossipEvent} from "../constants";
 import {hashTreeRoot, serialize} from "@chainsafe/ssz";
-import {promisify} from "es6-promisify";
 import {LodestarGossipMessage} from "../interface";
 
 export async function handleIncomingAttestation(this: Gossip, obj: LodestarGossipMessage): Promise<void> {
@@ -41,12 +40,18 @@ export function getCommitteeAttestationHandler(subnet: number): GossipHandlerFn 
 
 export async function publishCommiteeAttestation(this: Gossip, attestation: Attestation): Promise<void> {
   const subnet = getAttestationSubnet(attestation);
-  await promisify<void, string, Buffer>(this.pubsub.publish.bind(this.pubsub))(
-    getAttestationSubnetTopic(attestation), serialize(this.config.types.Attestation, attestation));
-  //backward compatible
-  await promisify<void, string, Buffer>(this.pubsub.publish.bind(this.pubsub))(
-    getGossipTopic(GossipEvent.ATTESTATION), serialize(this.config.types.Attestation, attestation)
-  );
+  // TODO: wait for an upcoming integration with new libp2p
+  try {
+    await this.pubsub.publish(
+      getAttestationSubnetTopic(attestation), serialize(this.config.types.Attestation, attestation));
+    //backward compatible
+    await this.pubsub.publish(
+      getGossipTopic(GossipEvent.ATTESTATION), serialize(this.config.types.Attestation, attestation)
+    );
+  } catch (err) {
+    console.error("!!!!!!!!!!!!! publishCommiteeAttestation", err);
+  }
+
   this.logger.verbose(
     `Publishing attestation ${toHex(hashTreeRoot(this.config.types.Attestation, attestation))} for subnet ${subnet}`
   );

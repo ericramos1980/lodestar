@@ -7,7 +7,6 @@ import {getGossipTopic} from "../utils";
 import {Gossip} from "../gossip";
 import {GossipEvent} from "../constants";
 import {serialize} from "@chainsafe/ssz";
-import {promisify} from "es6-promisify";
 import {LodestarGossipMessage} from "../interface";
 
 export async function handleIncomingProposerSlashing(this: Gossip, obj: LodestarGossipMessage): Promise<void> {
@@ -23,10 +22,15 @@ export async function handleIncomingProposerSlashing(this: Gossip, obj: Lodestar
 }
 
 export async function publishProposerSlashing(this: Gossip, proposerSlashing: ProposerSlashing): Promise<void> {
-  await promisify<void, string, Buffer>(this.pubsub.publish.bind(this.pubsub))(
-    getGossipTopic(GossipEvent.PROPOSER_SLASHING),
-    serialize(this.config.types.ProposerSlashing, proposerSlashing)
-  );
+  // TODO: wait for an upcoming integration with new libp2p
+  try {
+    await this.pubsub.publish(
+      getGossipTopic(GossipEvent.PROPOSER_SLASHING),
+      serialize(this.config.types.ProposerSlashing, proposerSlashing)
+    );
+  } catch (err) {
+    console.error("!!!!!!!!!!!!! publishProposerSlashing", err);
+  }
   this.logger.verbose(
     `Publishing proposer slashing for validator #${proposerSlashing.proposerIndex}`
   );

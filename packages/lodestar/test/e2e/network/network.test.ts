@@ -77,7 +77,7 @@ describe("[network] network", function () {
     expect(netA.getPeers().length).to.equal(0);
     expect(netB.getPeers().length).to.equal(0);
   });
-  it("should receive blocks on subscription", async function () {
+  it.only("should receive blocks on subscription", async function () {
     const connected = Promise.all([
       new Promise((resolve) => netA.on("peer:connect", resolve)),
       new Promise((resolve) => netB.on("peer:connect", resolve)),

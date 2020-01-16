@@ -5,7 +5,6 @@
 
 import {EventEmitter} from "events";
 //@ts-ignore
-import {promisify} from "es6-promisify";
 import LibP2p from "libp2p";
 import {IBeaconConfig} from "@chainsafe/eth2.0-config";
 import {ATTESTATION_SUBNET_COUNT} from "../../constants";
@@ -44,20 +43,35 @@ export class Gossip extends (EventEmitter as { new(): GossipEventEmitter }) impl
     this.libp2p = libp2p;
     this.logger = logger.child({module: "gossip", level: LogLevel[logger.level]});
     this.logger.silent = logger.silent;
+    // This is required by Gossipsub, not in use for now
+    const registrar = {
+      // @ts-ignore
+      handle: (multicodecs, handle) => {
+        this.logger.debug(`Gossip handle: multicodecs=${multicodecs}, handle=${handle}`);
+      },
+      // @ts-ignore
+      register: (multicodecs, handlers) => {
+        this.logger.debug(`Gossip register: multicodecs=${multicodecs}, handlers=${handlers}`);
+      },
+      // @ts-ignore
+      unregister: (id) => {
+        this.logger.debug(`Gossip unregister: id=${id}`);
+      }
+    };
     //@ts-ignore
-    this.pubsub = new LodestarGossipsub(config, validator, libp2p, {gossipIncoming: false});
+    this.pubsub = new LodestarGossipsub(config, validator, libp2p.peerInfo, registrar, {gossipIncoming: false});
     this.handlers = this.registerHandlers();
   }
 
   public async start(): Promise<void> {
-    await promisify(this.pubsub.start.bind(this.pubsub))();
+    await this.pubsub.start();
     this.handlers.forEach((handler, topic) => {
       this.pubsub.on(topic, handler);
     });
   }
 
   public async stop(): Promise<void> {
-    await promisify(this.pubsub.stop.bind(this.pubsub))();
+    await this.pubsub.stop();
     this.handlers.forEach((handler, topic) => {
       this.pubsub.removeListener(topic, handler);
     });
