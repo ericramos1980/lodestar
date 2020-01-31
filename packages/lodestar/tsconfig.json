@@ -2,11 +2,11 @@
   "extends": "../../tsconfig",
   "include": ["src"],
   "exclude": ["test"],
-  "compilerOptions": {
+  "compilerOptions": { 
     "typeRoots": [
-      "../../node_modules/@types",
-      "../../node_modules/@polkadot/ts"
-    ],
+    "../../node_modules/@types",
+    "../../node_modules/@polkadot/ts"
+  ],
     "outDir": "lib",
     /* Redirect output structure to the directory. */
     "rootDir": "./src"
